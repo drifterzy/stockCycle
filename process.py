@@ -1,3 +1,4 @@
+import math
 import pickle
 import pandas as pd
 from signal import getClosePrice2, nDayBefore
@@ -91,8 +92,6 @@ def get_distinct_signal(n):
 # 输出：每次交易产生的盈利亏损情况
 def get_result(trade_dict,total_price):
     date_list = list(trade_dict)
-    # profit_dict = {}
-    # tmp_dict = {}
     profit_list = []
 
     for i in range(len(date_list) - 1):
@@ -104,18 +103,18 @@ def get_result(trade_dict,total_price):
             tmp_list.append(firstDate)
             tmp_list.append(firstProduct)
             tmp_list.append(0)
-            # tmp_dict[firstDate + " " + firstProduct] = 0
+            tmp_list.append(0)
+            tmp_list.append(0)
         else:
             close = getClosePrice2(firstDate,firstProduct)
-            num = total_price/close
+            num = total_price/close//100
+            buy_num = (num+1)*100
             close2 = getClosePrice2(date,firstProduct)
             margin = close2-close
             tmp_list.append(firstDate)
             tmp_list.append(firstProduct)
-            tmp_list.append(margin*num)
-            # tmp_dict[firstDate+" "+firstProduct] = margin*num
-        # profit_dict.update(tmp_dict)
+            tmp_list.append(buy_num)
+            tmp_list.append(close*buy_num)
+            tmp_list.append(margin*buy_num-close*buy_num*0.0001-close2*buy_num*0.0001)
         profit_list.append(tmp_list)
-    # print(sum(profit_dict.values()))
-    # print("success")
     return profit_list
