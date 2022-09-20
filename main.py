@@ -8,10 +8,7 @@ from process import get_signal, get_result
 # 输入：产品数组、开始、结束日期、投入总额、日期差额
 # 输出：日期、买入节点、此次交易的盈利亏损额、总盈利亏损额
 def etf_cycle(stock_dict, start_day, end_day, total_price, n):
-    # trade_dict = get_signal(stock_dict, start_day, end_day, n)
-    f_read = open('./signal/cycle22Signal.pkl', 'rb')
-    trade_dict = pickle.load(f_read)
-    f_read.close()
+    trade_dict = get_signal(stock_dict, start_day, end_day, n)
     profit_list = get_result(trade_dict, total_price)
     df = pd.DataFrame(profit_list,columns=['date','product','buy_num','budget','profit'])
     df.to_csv('./result/profit'+str(n)+'.csv',index=False)
@@ -25,7 +22,7 @@ if __name__ == '__main__':
     total_price = 10000
     # 保存最新的数据文件，加速读写速度
     for stock in stock_dict.keys():
-        df = ak.fund_etf_hist_sina(symbol=stock)[['date', 'close']]
+        df = ak.fund_etf_hist_sina(symbol=stock)[['date', 'open', 'close']]
         df.to_csv('./stock_price/'+stock+'.csv',index=False)
     # 执行策略
     etf_cycle(stock_dict, start_day, end_day, total_price, n)

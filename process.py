@@ -1,7 +1,7 @@
 import math
 import pickle
 import pandas as pd
-from signal import getClosePrice2, nDayBefore
+from signal import getClosePrice2, nDayBefore, getOpenPrice
 
 
 # 功能：生成交易日期和产品名的字典
@@ -9,6 +9,7 @@ from signal import getClosePrice2, nDayBefore
 # 输出：字典变量
 def get_signal(stock_dict, start_day, end_day, n):
     tradeDay = pd.read_csv('./tradeDay/tradeDay.csv')
+    signal_dict_ori = {}
     signal_dict = {}
     day_storage = ""
     for dayRow in tradeDay.iterrows():
@@ -40,51 +41,22 @@ def get_signal(stock_dict, start_day, end_day, n):
             buySignal = "空仓"
             tmp_dict[today] = buySignal
         # print(tmp_dict)
+        signal_dict_ori.update(tmp_dict)
         # 去重
-        if len(signal_dict)==0:
+        if len(signal_dict) == 0:
             signal_dict.update(tmp_dict)
             day_storage = today
         else:
-            if buySignal==signal_dict.get(day_storage):
+            if buySignal == signal_dict.get(day_storage):
                 continue
             else:
                 signal_dict.update(tmp_dict)
                 day_storage = today
-
-    f_save = open('./signal/cycle'+str(n)+'Signal.pkl', 'wb')
-    pickle.dump(signal_dict, f_save)
-    f_save.close()
+    pd.DataFrame(list(signal_dict.items())).to_csv('./signal/DistinctSignal' + str(n) + '.csv')
+    pd.DataFrame(list(signal_dict_ori.items())).to_csv('./signal/OriSignal'+str(n)+'.csv')
+    # pd.DataFrame(list(signal_dict.items())).to_csv('./signal/DistinctSignal'+str(n)+'.csv', columns=['date', 'product'])
     print('生成信号文件成功，日期间隔为'+str(n))
     return signal_dict
-
-# 功能：去重交易日期和产品名的字典
-# 输入：原始不去重的字典文件
-# 输出：去重的字典变量
-def get_distinct_signal(n):
-    f_read = open('./signal/cycle'+n+'Signal.pkl', 'rb')
-    signal_dict = pickle.load(f_read)
-    f_read.close()
-
-    date_list = list(signal_dict)
-
-    target_list = []
-    for i in range(len(date_list)-1):
-        firstDate = date_list[i]
-        date = date_list[i+1]
-        firstProduct = signal_dict[firstDate]
-        product = signal_dict[date]
-        if product!=firstProduct:
-            target_list.append(date)
-
-    tmp_dict = {}
-    target_dict = {}
-    for i in range(len(target_list)):
-        signal = signal_dict.get(target_list[i])
-        tmp_dict[target_list[i]] = signal
-        target_dict.update(tmp_dict)
-
-    print("success")
-    return target_dict
 
 
 # 功能：获取结果
