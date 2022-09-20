@@ -1,6 +1,7 @@
 import pickle
 import akshare as ak
-from analysis import get_signal, get_result
+import pandas as pd
+from process import get_signal, get_result
 
 
 # 功能：ETF轮动回测代码
@@ -8,10 +9,9 @@ from analysis import get_signal, get_result
 # 输出：日期、买入节点、此次交易的盈利亏损额、总盈利亏损额
 def etf_cycle(stock_dict, start_day, end_day, total_price, n):
     trade_dict = get_signal(stock_dict, start_day, end_day, n)
-    profit_dict = get_result(trade_dict, total_price)
-    f_save = open('./result/profit' + str(n) + '.pkl', 'wb')
-    pickle.dump(profit_dict, f_save)
-    f_save.close()
+    profit_list = get_result(trade_dict, total_price)
+    df = pd.DataFrame(profit_list,columns=['date','product','profit'])
+    df.to_csv('./result/profit'+str(n)+'.csv',index=False)
 
 
 if __name__ == '__main__':
