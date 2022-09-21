@@ -11,7 +11,7 @@ def etf_cycle(stock_dict, start_day, end_day, total_price, n):
     # trade_df = get_signal(stock_dict, start_day, end_day, n)
     trade_df = pd.read_csv('./signal/OriSignal22.csv')
     profit_list = get_result(trade_df, total_price)
-    df = pd.DataFrame(profit_list,columns=['date','product','buy_num','budget','profit'])
+    df = pd.DataFrame(profit_list,columns=['信号日期','股票名称','股票数量','买入单价','买入总价','卖出单价','卖出总价','单次利润','单次利润率','累计利润率'])
     df.to_csv('./result/profit'+str(n)+'.csv',index=False)
 
 
