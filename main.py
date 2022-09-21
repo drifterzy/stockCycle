@@ -8,8 +8,9 @@ from process import get_signal, get_result
 # 输入：产品数组、开始、结束日期、投入总额、日期差额
 # 输出：日期、买入节点、此次交易的盈利亏损额、总盈利亏损额
 def etf_cycle(stock_dict, start_day, end_day, total_price, n):
-    trade_dict = get_signal(stock_dict, start_day, end_day, n)
-    profit_list = get_result(trade_dict, total_price)
+    # trade_df = get_signal(stock_dict, start_day, end_day, n)
+    trade_df = pd.read_csv('./signal/OriSignal22.csv')
+    profit_list = get_result(trade_df, total_price)
     df = pd.DataFrame(profit_list,columns=['date','product','buy_num','budget','profit'])
     df.to_csv('./result/profit'+str(n)+'.csv',index=False)
 

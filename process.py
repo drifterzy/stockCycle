@@ -52,24 +52,28 @@ def get_signal(stock_dict, start_day, end_day, n):
             else:
                 signal_dict.update(tmp_dict)
                 day_storage = today
-    pd.DataFrame(list(signal_dict.items())).to_csv('./signal/DistinctSignal' + str(n) + '.csv')
-    pd.DataFrame(list(signal_dict_ori.items())).to_csv('./signal/OriSignal'+str(n)+'.csv')
-    # pd.DataFrame(list(signal_dict.items())).to_csv('./signal/DistinctSignal'+str(n)+'.csv', columns=['date', 'product'])
+    # 保存去重信号df
+    df = pd.DataFrame.from_dict(signal_dict,orient='index',columns=['product'])
+    df = df.reset_index().rename(columns = {"index": "date"})
+    df.to_csv('./signal/DistinctSignal' + str(n) + '.csv',index=False)
+    # 保存原始信号df2
+    df2 = pd.DataFrame.from_dict(signal_dict_ori, orient='index', columns=['product'])
+    df2 = df2.reset_index().rename(columns = {"index": "date"})
+    df2.to_csv('./signal/OriSignal' + str(n) + '.csv',index=False)
     print('生成信号文件成功，日期间隔为'+str(n))
-    return signal_dict
+    return df2
 
 
 # 功能：获取结果
 # 输入：交易日期和产品的dict，投入总价
 # 输出：每次交易产生的盈利亏损情况
-def get_result(trade_dict,total_price):
-    date_list = list(trade_dict)
+def get_result(trade_df,total_price):
     profit_list = []
-
-    for i in range(len(date_list) - 1):
-        firstDate = date_list[i]
-        date = date_list[i + 1]
-        firstProduct = trade_dict[firstDate]
+    for i in range(0, len(trade_df)-1):
+        firstDate = trade_df.iloc[i]['date']
+        date = trade_df.iloc[i+1]['date']
+        # test = trade_df.loc[trade_df['date'] == date, 'product'].values[0]
+        firstProduct = trade_df.loc[trade_df['date'] == date, 'product'].values[0]
         tmp_list = []
         if firstProduct=='空仓':
             tmp_list.append(firstDate)
