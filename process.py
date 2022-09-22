@@ -81,7 +81,8 @@ def get_num(total_price,close):
 # 输出：每次交易产生的盈利亏损情况
 def get_result(trade_df,total_price):
     profit_list = []
-    total_profit = 0
+    # total_profit = total_price
+    total_profit_rate = 0
     for i in range(0, len(trade_df)-1):
         firstDate = trade_df.iloc[i]['date']
         firstProduct = trade_df.loc[trade_df['date'] == firstDate, 'product'].values[0]
@@ -97,25 +98,29 @@ def get_result(trade_df,total_price):
             tmp_list.append(0)
             tmp_list.append(0)
             tmp_list.append(0)
-            tmp_list.append(total_profit)
+            tmp_list.append(total_profit_rate)
         else:
             close = getClosePrice2(firstDate,firstProduct)
+            close2 = getClosePrice2(secondDate, firstProduct)
             if i==0:
                 # 计算买入数量
                 buy_num = get_num(total_price,close)
                 storage_num = buy_num
+                buy_total = close * buy_num * 1.0001
+                sell_total = close2 * buy_num * 0.9999
             else:
                 beforeDate = trade_df.iloc[i - 1]['date']
                 beforeProduct = trade_df.loc[trade_df['date'] == beforeDate, 'product'].values[0]
                 if firstProduct==beforeProduct:
                     buy_num = storage_num
+                    buy_total = close * buy_num
+                    sell_total = close2 * buy_num
                 else:
                     buy_num = get_num(total_price, close)
                     storage_num = buy_num
+                    buy_total = close * buy_num * 1.0001
+                    sell_total = close2 * buy_num * 0.9999
 
-            close2 = getClosePrice2(secondDate,firstProduct)
-            buy_total = close*buy_num*1.0001
-            sell_total = close2 * buy_num * 0.9999
             # 信号日期
             tmp_list.append(firstDate)
             # 股票名称
@@ -131,12 +136,15 @@ def get_result(trade_df,total_price):
             # 卖出总价（含手续费）
             tmp_list.append(sell_total)
             # 此次交易的利润
-            tmp_list.append(sell_total-buy_total)
-            # 此次交易的利润率
-            tmp_profit = (sell_total - buy_total)/buy_total
+            tmp_profit = sell_total-buy_total
             tmp_list.append(tmp_profit)
-            # 总和利润率
-            total_profit = total_profit+tmp_profit
-            tmp_list.append(total_profit)
+            # 此次交易的利润率
+            tmp_profit_rate = tmp_profit/buy_total
+            tmp_list.append(tmp_profit_rate)
+            # 累计总金额
+            # total_profit = total_profit+tmp_profit
+            # 累计利润率
+            total_profit_rate = total_profit_rate+tmp_profit_rate
+            tmp_list.append(total_profit_rate)
         profit_list.append(tmp_list)
     return profit_list

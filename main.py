@@ -18,7 +18,7 @@ def etf_cycle(stock_dict, start_day, end_day, total_price, n):
 if __name__ == '__main__':
     stock_dict = {'sh511010': '国债ETF:511010', 'sh510050': '上证50ETF:510050', 'sz159915': '创业板ETF:159915'}
     start_day = '2015-01-01'
-    end_day = '2022-09-19'
+    end_day = '2022-09-21'
     n = 22
     total_price = 10000
     # 保存最新的数据文件，加速读写速度
