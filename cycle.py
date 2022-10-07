@@ -1,12 +1,14 @@
 from email_send import mail
 from signal import getClosePrice,nDayBefore
+import datetime
 from datetime import date
-
+from dateutil.relativedelta import relativedelta
 
 close_list_today=[]
 close_list_startday = []
 profit_list = []
 today = date.today().strftime("%Y-%m-%d")
+# today = '2022-09-27'
 startDay = nDayBefore(today,22)
 stock_list = ["sh511010", "sh510050", "sz159915"]
 stock_dict = {'sh511010': '国债ETF:511010', 'sh510050': '上证50ETF:510050', 'sz159915': '创业板ETF:159915'}

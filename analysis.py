@@ -3,8 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 df = pd.read_csv('./result/profit22.csv')
+year_profit = 0.0
+for dayRow in df.iterrows():
+    today= dayRow[1]['信号日期']
+    if today>'2022-01-01' and today<'2022-12-31':
+        day_profit = df[df['信号日期']==today]['单次利润'].values[0]
+        year_profit = year_profit+day_profit
+print(year_profit)
 array = np.array(df['累计利润率'])
 profit_list = array.tolist()
+
 
 # 净值曲线
 # plt.style.use("seaborn")
