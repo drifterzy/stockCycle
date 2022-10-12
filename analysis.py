@@ -3,15 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 df = pd.read_csv('./result/profit22.csv')
+year = '2022'
+startday = year + '-01-01'
+endday = year + '-12-31'
 year_profit = 0.0
 for dayRow in df.iterrows():
     today= dayRow[1]['信号日期']
-    if today>'2022-01-01' and today<'2022-12-31':
+    if today>startday and today<endday:
         day_profit = df[df['信号日期']==today]['单次利润'].values[0]
         year_profit = year_profit+day_profit
 print(year_profit)
-array = np.array(df['累计利润率'])
-profit_list = array.tolist()
+
 
 
 # 净值曲线
@@ -64,7 +66,8 @@ def draw_trend_and_withdraw(xs, ys, title, max_x, max_y, show_max_str, min_x, mi
 # 每年的盈利金额
 # 盈利次数，平均单次盈利额
 # 亏损次数，平均单次亏损额
-
+array = np.array(df['累计利润率'])
+profit_list = array.tolist()
 print(_withdraw_with_high_low(profit_list))
 max_withdraw, _max, _min = _withdraw_with_high_low(profit_list)
 start_day = df.iloc[_max,0]
