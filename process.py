@@ -1,7 +1,8 @@
 import math
 import pickle
 import pandas as pd
-from signal import getClosePrice2, nDayBefore, getOpenPrice
+from utils.stockPrice import getClosePrice2
+from utils.tradeDay import getNDayBefore
 
 
 # 功能：生成交易日期和产品名的字典
@@ -17,7 +18,7 @@ def get_signal(stock_dict, start_day, end_day, n):
         # 从22天之后开始执行，跳过创业板2月8号无数据以及"22"天后的3月17号异常日期
         if today < start_day or today > end_day or today == '2021-02-08' or today == '2021-03-17':
             continue
-        n_day_before = nDayBefore(today, n)
+        n_day_before = getNDayBefore(today, n)
         close_list_today = []
         close_list_startday = []
         profit_list = []
@@ -55,13 +56,13 @@ def get_signal(stock_dict, start_day, end_day, n):
     # 保存去重信号df
     df = pd.DataFrame.from_dict(signal_dict,orient='index',columns=['product'])
     df = df.reset_index().rename(columns = {"index": "date"})
-    df.to_csv('./signal/DistinctSignal' + str(n) + '.csv',index=False)
+    df.to_csv('./signal/DistinctTradeSignal' + str(n) + '.csv',index=False)
     # 保存原始信号df2
     df2 = pd.DataFrame.from_dict(signal_dict_ori, orient='index', columns=['product'])
     df2 = df2.reset_index().rename(columns = {"index": "date"})
-    df2.to_csv('./signal/OriSignal' + str(n) + '.csv',index=False)
+    df2.to_csv('./signal/AllTradeSignal' + str(n) + '.csv',index=False)
     print('生成信号文件成功，日期间隔为'+str(n))
-    return df2
+    return df, df2
 
 # 功能：获取交易数量
 # 输入：投入总价和产品单价

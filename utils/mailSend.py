@@ -2,12 +2,11 @@ import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
-my_sender = '1074725704@qq.com'  # 发件人邮箱账号
-my_pass = 'rqcvsqdbwdneicih'  # 发件人邮箱授权码
-my_user = '1074725704@qq.com'  # 收件人邮箱账号，我这边发送给自己
 
 
-def mail(signal,user):
+def mailSend(signal,user):
+    my_sender = '1074725704@qq.com'  # 发件人邮箱账号
+    my_pass = 'rqcvsqdbwdneicih'  # 发件人邮箱授权码
     try:
         msg = MIMEText(signal, 'plain', 'utf-8')
         msg['From'] = formataddr([my_sender, my_sender])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
@@ -21,5 +20,6 @@ def mail(signal,user):
         print("邮件发送成功")
     except Exception:  # 如果 try 中的语句没有执行，则会执行下面的 ret=False
         print("邮件发送失败")
+
 
 
