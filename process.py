@@ -14,11 +14,12 @@ def get_signal(stock_dict, start_day, end_day, n):
     signal_dict = {}
     day_storage = ""
     for dayRow in tradeDay.iterrows():
-        today = dayRow[1]['calendar_date']
-        # 从22天之后开始执行，跳过创业板2月8号无数据以及"22"天后的3月17号异常日期
-        if today < start_day or today > end_day or today == '2021-02-08' or today == '2021-03-17':
-            continue
+        today = dayRow[1]['trade_date']
         n_day_before = getNDayBefore(today, n)
+        # 从22天之后开始执行，跳过创业板2021年2月8号无数据的情况
+        if today < start_day or today > end_day or today == '2021-02-08' or n_day_before == '2021-02-08':
+            continue
+
         close_list_today = []
         close_list_startday = []
         profit_list = []
@@ -41,9 +42,9 @@ def get_signal(stock_dict, start_day, end_day, n):
         else:
             buySignal = "空仓"
             tmp_dict[today] = buySignal
-        # print(tmp_dict)
+        # 原始每日信号入库
         signal_dict_ori.update(tmp_dict)
-        # 去重
+        # 去重信号入库
         if len(signal_dict) == 0:
             signal_dict.update(tmp_dict)
             day_storage = today
@@ -66,14 +67,15 @@ def get_signal(stock_dict, start_day, end_day, n):
 
 # 功能：获取交易数量
 # 输入：投入总价和产品单价
-# 输出：每次交易>=总价的数量
+# 输出：每次交易>=总价的数量，需为100的整数倍
 def get_num(total_price,close):
-    num = total_price / close // 100
-    plus = (total_price / close) % 100
-    if plus == 0:
-        buy_num = num * 100
-    else:
-        buy_num = (num + 1) * 100
+    num = total_price*0.9999 / close // 100
+    buy_num = num * 100
+    # plus = (total_price / close) % 100
+    # if plus == 0:
+    #     buy_num = num * 100
+    # else:
+    #     buy_num = (num + 1) * 100
     return buy_num
 
 
@@ -90,6 +92,7 @@ def get_result(trade_df,total_price):
         secondDate = trade_df.iloc[i + 1]['date']
         tmp_list = []
         if firstProduct=='空仓':
+            tmp_profit = 0
             tmp_list.append(firstDate)
             tmp_list.append(firstProduct)
             tmp_list.append(0)
@@ -99,9 +102,12 @@ def get_result(trade_df,total_price):
             tmp_list.append(0)
             tmp_list.append(0)
             tmp_list.append(0)
+            tmp_list.append(total_price)
             tmp_list.append(total_profit_rate)
         else:
+            # 以当天收盘价为买入价
             close = getClosePrice2(firstDate,firstProduct)
+            # 以信号转化当天收盘价为卖出价
             close2 = getClosePrice2(secondDate, firstProduct)
             if i==0:
                 # 计算买入数量
@@ -110,12 +116,15 @@ def get_result(trade_df,total_price):
                 buy_total = close * buy_num * 1.0001
                 sell_total = close2 * buy_num * 0.9999
             else:
+                # 当交易信号不去重时，走这个逻辑
                 beforeDate = trade_df.iloc[i - 1]['date']
                 beforeProduct = trade_df.loc[trade_df['date'] == beforeDate, 'product'].values[0]
                 if firstProduct==beforeProduct:
+                    # 此时持仓数量不变，买入和卖出总价随当天的收盘价变化
                     buy_num = storage_num
                     buy_total = close * buy_num
                     sell_total = close2 * buy_num
+                # 当交易信号去重时，走这个逻辑
                 else:
                     buy_num = get_num(total_price, close)
                     storage_num = buy_num
@@ -143,9 +152,10 @@ def get_result(trade_df,total_price):
             tmp_profit_rate = tmp_profit/buy_total
             tmp_list.append(tmp_profit_rate)
             # 累计总金额
-            # total_profit = total_profit+tmp_profit
+            tmp_list.append(total_price)
             # 累计利润率
             total_profit_rate = total_profit_rate+tmp_profit_rate
             tmp_list.append(total_profit_rate)
+        total_price = total_price+tmp_profit
         profit_list.append(tmp_list)
     return profit_list

@@ -1,3 +1,4 @@
+import math
 import pickle
 import akshare as ak
 import pandas as pd
@@ -12,27 +13,34 @@ from utils.tradeDay import getTradeDay
 
 
 def etf_cycle(stock_dict, start_day, end_day, total_price, n):
+    # 获取交易信号
     distinctSignal,allSignal = get_signal(stock_dict, start_day, end_day, n)
-    profit_list = get_result(allSignal, total_price)
-    df = pd.DataFrame(profit_list,columns=['信号日期','股票名称','股票数量','买入单价','买入总价','卖出单价','卖出总价','单次利润','单次利润率','累计利润率'])
+    # 获取盈利情况
+    profit_list = get_result(distinctSignal, total_price)
+    df = pd.DataFrame(profit_list,columns=['信号日期','股票名称','股票数量','买入单价','买入总价','卖出单价','卖出总价','单次利润','单次利润率','当前资产','累计利润率'])
     df.to_csv('./result/result'+str(n)+'day.csv',index=False)
+    return df
 
 
 if __name__ == '__main__':
-    stock_dict = {'sh511010': '国债ETF:511010', 'sh510050': '上证50ETF:510050', 'sz159915': '创业板ETF:159915'}
-    start_day = '2015-01-01'
-    end_day = '2022-11-10'
-    n = 22
-    total_price = 10000
-    # 获取交易日
-    getTradeDay(start_day, end_day)
-    # 获取股票价格
-    print("获取股票价格开始")
-    for stock in stock_dict.keys():
-        getStockPrice(stock)
-    print("获取股票价格结束")
-    # 执行策略
-    print("etf轮动开始")
-    etf_cycle(stock_dict, start_day, end_day, total_price, n)
-    print("etf轮动结束")
-    # 分析结果：文字、表格、图片
+    for n in range(19,28):
+        stock_dict = {'sh511010': '国债ETF:511010', 'sh510050': '上证50ETF:510050', 'sz159915': '创业板ETF:159915'}
+        start_day = '2015-01-01'
+        end_day = '2022-11-10'
+        # n = 21
+        total_price = 50000
+        # 获取交易日
+        getTradeDay()
+        # 获取股票价格
+        print("获取股票价格开始")
+        for stock in stock_dict.keys():
+            getStockPrice(stock)
+        print("获取股票价格结束")
+        # 执行策略
+        print("etf轮动开始")
+        df = etf_cycle(stock_dict, start_day, end_day, total_price, n)
+        idx_last = df.index[len(df) - 1]
+        res = df.loc[idx_last]['当前资产']
+        print('当日期间隔为'+str(n)+'时，资产总额为'+str(math.floor(res)))
+        print("etf轮动结束")
+        # 分析结果：文字、表格、图片

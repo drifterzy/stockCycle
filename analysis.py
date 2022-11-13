@@ -1,8 +1,13 @@
+import math
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('./result/profit22.csv')
+df = pd.read_csv('./result/result21day.csv')
+idx_last = df.index[len(df)-1]
+res = df.loc[idx_last]['当前资产']
+print('hello'+str(math.floor(res)))
 year = '2022'
 startday = year + '-01-01'
 endday = year + '-12-31'
